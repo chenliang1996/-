@@ -14,8 +14,8 @@ last edited: January 2015
  
 import sys
 from PyQt5.QtWidgets import (QWidget, QToolTip,QPushButton, QApplication)
-from PyQt5.QtGui import QFont   
- 
+from PyQt5.QtGui import QFont
+
  
 class Example(QWidget):
      
