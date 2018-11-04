@@ -36,7 +36,7 @@ def main():
         data = input('输入你要发的消息: ')
         data = 'L'+data
         fd.sendto(data.encode(), addr)
-    recv_msg(fd,addr)
+    # recv_msg2(fd,addr)
 
 def recv_msg(fd, addr, q = None):
     while True:

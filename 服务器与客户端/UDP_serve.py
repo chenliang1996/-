@@ -77,10 +77,11 @@ def renman(fd, n,userdist,userdist1,userweizhi):
                 fd.sendto(b'Q', userdist[i])
         begin(fd,userdist,userdist1,userweizhi)
 
-def begin(fd,userdist,userdist1,userweizhi):
+def begin(fd,userdist,userdist1,userweizhi):    #游戏开始后执行函数
     shenfendist = distribute(userweizhi)
 
-
+def distribute(userweizhi):           #游戏开始的第一步，分发身份信息
+    pass
 
         
 
