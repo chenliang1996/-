@@ -29,7 +29,7 @@ def do_request(fd):
         datalist = data.decode()
         if datalist[0] == 'D':
             n = do_login(fd, addr, datalist[1:], userdist, n, userweizhi, userdist1)
-            renman(fd,n,userdist)
+            renman(fd,n,userdist,userdist1,userweizhi)
         if datalist[0] == 'L':
             do_jiaoliu(fd, datalist[1:], addr, userdist,userweizhi,userdist1)
 
@@ -55,10 +55,11 @@ def do_login(fd, addr, username, userdist, n,userweizhi ,userdist1):
             fd.sendto(data.encode(), userdist[i])
         userdist[username] = addr
         userweizhi[addr] = n
+        # print(userweizhi)
         userdist1[addr] = username
         return n
 
-def renman(fd, n,userdist):
+def renman(fd, n,userdist,userdist1,userweizhi):
     if n == 3:
         for i in userdist:
             data = 'd游戏将在10秒后开始'.encode()
@@ -71,7 +72,14 @@ def renman(fd, n,userdist):
             sleep(1)
             a -= 1
         for i in userdist:
+            fd.sendto('d游戏开始'.encode(),userdist[i])   
+        for i in userdist:   #需要关闭子进程 ， 因为子进程无法使用input
                 fd.sendto(b'Q', userdist[i])
+        begin(fd,userdist,userdist1,userweizhi)
+
+def begin(fd,userdist,userdist1,userweizhi):
+    shenfendist = distribute(userweizhi)
+
 
 
         

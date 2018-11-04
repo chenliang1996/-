@@ -7,6 +7,7 @@ socker
 from socket import *
 import os, sys
 from multiprocessing import *
+# from 所有的类.human import Human
 
 def main():
     fd = socket(AF_INET, SOCK_DGRAM)
@@ -31,12 +32,13 @@ def main():
     p.start()
     while True:
         if q.empty() == False:
-            sys.exit(0)
+            break
         data = input('输入你要发的消息: ')
         data = 'L'+data
         fd.sendto(data.encode(), addr)
-        
-def recv_msg(fd, addr, q):
+    recv_msg(fd,addr)
+
+def recv_msg(fd, addr, q = None):
     while True:
         data = fd.recv(2048)
         if data.decode()[0] == 'q':
@@ -46,10 +48,6 @@ def recv_msg(fd, addr, q):
             sys.exit(0)
         elif data.decode()[0] =='L':
             print(data.decode()[1:])
-
-def do_begin(fd):
-    while True:
-        pass
 
 
 if __name__ == '__main__':
