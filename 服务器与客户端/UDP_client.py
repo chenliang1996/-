@@ -7,7 +7,8 @@ socker
 from socket import *
 import os, sys
 from multiprocessing import *
-# from 所有的类.human import Human
+import human
+import werewolf
 
 def main():
     fd = socket(AF_INET, SOCK_DGRAM)
@@ -26,17 +27,18 @@ def main():
             break
         else:
             print(data1.decode())
-
-
-    p = Process(target = recv_msg, name = 'Psend',args=(fd,addr,q))
+    p = Process(target=recv_msg, name='Psend', args=(fd, addr, q))
+    # p.daemon = True
     p.start()
     while True:
         if q.empty() == False:
             break
         data = input('输入你要发的消息: ')
-        data = 'L'+data
+        if data == 'exit':
+            return
+        data = 'AJ'+data
         fd.sendto(data.encode(), addr)
-    # recv_msg2(fd,addr)
+    recv_msg2(fd,addr)
 
 def recv_msg(fd, addr, q = None):
     while True:
@@ -46,8 +48,29 @@ def recv_msg(fd, addr, q = None):
             print(data.decode()[1:])
         elif data.decode()[0] == 'Q':
             sys.exit(0)
-        elif data.decode()[0] =='L':
+        elif data.decode()[0] =='W':
             print(data.decode()[1:])
+
+def recv_msg2(fd, addr):
+    data = fd.recv(2048)
+    if data.decode()[0] == 'L':
+        n = int(data.decode()[1])
+        werewolf.Cun(fd,addr,n)
+    if data.decode()[0] == 'C':
+        n = int(data.decode()[1])
+        human.Cun(fd,addr,n)
+    if data.decode()[0] == 'l':
+        pass
+    if data.decode()[0] == 'Y':
+        pass
+    if data.decode()[0] == 'N':
+        pass
+    if data.decode()[0] == 'B':
+        pass
+
+
+
+
 
 
 if __name__ == '__main__':
