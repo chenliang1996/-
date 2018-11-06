@@ -27,70 +27,184 @@ def main():  # 循环接收消息
 
 
 def do_request(fd):
+    global userdist
+    global userweizhi
+    global userdist1
+    global n
+    global L1
     userdist = {}
     userweizhi = {}
     userdist1 = {}
     n = 0
-    L1 = []
+    # L1 = []
     while True:
-        try:
-            data, addr = fd.recvfrom(1024)
-            datalist = data.decode()
-            if datalist[0] == 'D':
+        data, addr = fd.recvfrom(1024)
+        datalist = data.decode()
+        print(n)
+        if datalist[0] == 'D':
+            if n == 3:
+                datalist = 'gfs' + datalist
+                fd.sendto('Q人已经满了'.encode(),addr)
+            else:
                 n = do_login(fd, addr, datalist[1:],
                             userdist, n, userweizhi, userdist1)
-                renman(fd, n, userdist, userdist1, userweizhi)
+        elif datalist[1] == 'J':
+            do_jiaoliu(fd, datalist[2:], addr, userdist, userweizhi, userdist1)
+        elif datalist[0] == '1':
+            if datalist[1] == 'K':
+                break
+        # if datalist[0] == 'L':
+        #     pass
+        # if datalist[1] == 'W':
+        #     fasong(fd,datalist[2:],userdist)
+        # if datalist[1] == 'T':
+        #     toupiao(L1, datalist, userweizhi)
+    begin(fd,userdist,userdist1,userweizhi)
+
+def begin(fd,userdist, userdist1, userweizhi):  # 游戏开始后执行函数
+    for i in userdist:
+        data = 'W游戏将在5秒后开始'.encode()
+        fd.sendto(data, userdist[i])
+    a = 5
+    for i in range(5):
+        data = 'W%d秒后开始!' % (a)
+        for i in userdist:
+            fd.sendto(data.encode(), userdist[i])
+        sleep(1)
+        a -= 1
+    for i in userdist:
+        fd.sendto('q游戏开始,输入OK进入游戏'.encode(), userdist[i])
+    for i in userdist:  # 需要关闭子进程 ， 因为子进程无法使用input
+        fd.sendto(b'Q', userdist[i])
+    shenfendist = distribute(userweizhi)
+    sendStatus(fd, shenfendist, userweizhi)
+    sleep(3)
+    # 执行游戏循环流程
+    while True:
+        day = 0
+        day = liucheng(fd, shenfendist, userdist1,day)
+    
+def liucheng(fd, shenfendist,userdist1,day):  # 天黑了
+    L = []  #狼人,白天投票列表
+    l = []  #预言家等投票列表
+    DD = []
+    if panduan(shenfendist) == 'WIN':
+        data = 'Aa游戏结束,狼人胜利'
+        fasong(fd,data,userdist1)
+        main()
+    elif panduan(shenfendist) == 'FAIL':
+        data = 'Aa游戏结束,狼人失败'
+        fasong(fd,data,userdist1)
+        main()
+    day += 1
+    data = 'AA-----第%d天----' % day
+    fasong(fd, data, userdist1)
+    data = 'AY--预言家请睁眼验人--'
+    fasong(fd, data, userdist1)
+    # data = ''
+    S = toupiao(fd, l,DD)
+    chulitoupY(fd,shenfendist,S)
+    data = 'AL--狼人请睁眼,决定杀人对象--'
+    fasong(fd, data, userdist1)
+    L = toupiao(fd, L,DD)
+    DD.append(chulitoupL(fd,L,shenfendist))
+    data = 'AN--女巫请睁眼,决定救人还是毒人--'
+    fasong(fd, data, userdist1)
+    s = L[0]
+    if not s:
+        data = 'NN--昨晚没有死人'
+    else:
+        data = 'NN--昨晚死的是%s' % s
+    fasong(fd,data,userdist)
+    S = toupiao(fd, l,DD)
+    tianliang(fd, userdist1, DD, shenfendist)
+    toupiao(fd, shenfendist)
+    return day
+
+
+def toupiao(fd,L,DD):
+    fd.setblocking(False)
+    fd.settimeout(15)
+    try:
+        data, addr = fd.recvfrom(1024)
+        datalist = data.decode()
+    except:
+        return L
+    else:
+        if datalist[0] == 'L':  # 狼人投票刀人
             if datalist[1] == 'J':
-                do_jiaoliu(fd, datalist[2:], addr, userdist, userweizhi, userdist1)
-            if datalist[0] == 'L':
-                pass
-            if datalist[1] == 'W':
-                fasong(fd,datalist[2:],userdist)
-            if datalist[1] == 'T':
-                toupiao(L1, datalist, userweizhi)
-        except ConnectionResetError:
-            main()
+                do_jiaoliu(fd,datalist,addr,userdist,userweizhi,userdist1)
+            if datalist[2:] is not '':
+                L.append(datalist[2:])
+        elif datalist[0] == 'Y':  # 预言家投票验人
+            return datalist[2:]
+        elif datalist[0] == 'l':  # 猎人投票带走人
+            return datalist[2:]
+        elif datalist[0] == 'N':  # 女巫投票毒人
+            return DD.append(datalist[2:0])
+        elif datalist[0] == 'n':  # 女巫投票救人
+            return DD.remove(datalist[2:])
+        elif datalist[0] == 'A':  # 白天投票出局人
+            if datalist[2:] is not '':
+                L.append(datalist[2:])
+        return L
+
+def chulitoupY(fd, shenfendist, userweizhi, S):
+    for i in userweizhi:
+        if userweizhi[i] == 'S':
+            data = shenfendist[userweizhi[i]]
+            break
+    data = 'YY %s玩家的身份为%s' % (S, data)
+    fasong(fd,data,userdist)
+    
 
 
+def chulitoupL(fd,L, shenfendist):  #狼人投票处理
+    max_count = 0
+    if len(L) == 1:
+        dead(fd, L[0])
+    else:
+        for i in L:
+            if L.count(i) > max_count:
+                max_str = i
+                max_count = L.count(i)
+    return max_str
 
-def toupiao(L, data, userweizhi):
-    if datalist[0] == 'L':  # 狼人投票刀人
-        pass
-    elif datalist[0] == 'Y':  # 预言家投票验人
-        pass
-    elif datalist[0] == 'l':  # 猎人投票带走人
-        pass
-    elif datalist[0] == 'N':  # 女巫投票毒人
-        pass
-    elif datalist[0] == 'n':  # 女巫投票救人
-        pass
-    elif datalist[0] == 'A':  # 白天投票出局人
-        L.append(int(datalist[2:]))
-        chulitoup(L, userweizhi)
-
-
-def chulitoup(L, userweizhi):
+        
+def chulitoupB(fd, L, userweizhi):  #白天投票处理
     max_count = 0
     max_list = []
-    for i in L:
-        if L.count(i) > max_count:
-            max_str = i
-            max_count = L.count(i)
-    max_list.append(max_str)
-    L.remove(max_str)
-    for i in L:
-        if L.count(i) == max_count:
-            max_list.append(i)
-    if len(max_list) == 1:
-        dead(fd, max_list[0])
+    if len(L) == 1:
+        dead(fd, L[0])
+    else:
+        for i in L:
+            if L.count(i) > max_count:
+                max_str = i
+                max_count = L.count(i)
+        max_list.append(max_str)
+        L.remove(max_str)
+        for i in L:
+            if L.count(i) == max_count:
+                max_list.append(i)
+        if len(max_list) > 1:
+            for i in max_list:
+                for k in userweizhi:
+                    if i == userweizhi[k]:
+                        data = 'A%s%s玩家上PK台,请在次发言'%(i,i)
+                        fd.sendto('A%s%s玩家和%s玩家上PK台,请在次发言'.encode(),k)
+    
 
 
 def do_jiaoliu(fd, data, addr, userdist, userweizhi, userdist1):
-    name = userdist1[addr]
-    data = 'W%s说 %s' % (name, data)
-    for i in userdist1:
-        if i != addr:
-            fd.sendto(data.encode(), i)
+    if data[0:2] == 'LJ':
+        name = userweizhi[addr]
+        data = 'LJ%s说%s' % (name, data[2:])
+    else:
+        name = userdist1[addr]
+        data = 'W%s说 %s' % (name, data)
+        for i in userdist1:
+            if i != addr:
+                fd.sendto(data.encode(), i)
 
 
 def do_login(fd, addr, username, userdist, n, userweizhi, userdist1):
@@ -104,70 +218,22 @@ def do_login(fd, addr, username, userdist, n, userweizhi, userdist1):
             data = '欢迎%s 来到游戏间 , 还差%d即可开始游戏...' % (username, 8-n)
             fd.sendto(data.encode(), userdist[i])
         userdist[username] = addr
-        userweizhi[addr] = n
+        userweizhi[addr] = str(n)
         # print(userweizhi)
         userdist1[addr] = username
         return n
 
 
-def renman(fd, n, userdist, userdist1, userweizhi):
-    if n == 3:
-        for i in userdist:
-            data = 'W游戏将在10秒后开始'.encode()
-            fd.sendto(data, userdist[i])
-        a = 10
-        for i in range(10):
-            data = 'q%d秒后开始!' % (a)
-            for i in userdist:
-                fd.sendto(data.encode(), userdist[i])
-            sleep(1)
-            a -= 1
-        for i in userdist:
-            fd.sendto('W游戏开始'.encode(), userdist[i])
-        for i in userdist:  # 需要关闭子进程 ， 因为子进程无法使用input
-            fd.sendto(b'Q', userdist[i])
-        begin(fd, userdist, userdist1, userweizhi)
-
-
-def begin(fd, userdist, userdist1, userweizhi):  # 游戏开始后执行函数
-    shenfendist = distribute(userweizhi)
-    sendStatus(fd, shenfendist, userweizhi)
-    sleep(3)
-    # 执行游戏循环流程
-    liucheng(fd, shenfendist,userdist1)
-
-
-def liucheng(fd, shenfendist,userdist1):  # 天黑了
-    day = 0
-    while True:
-        if panduan(shenfendist) == 'WIN':
-            data = 'Aa游戏结束,狼人失败'
-            fasong(fd,data,userdist1)
-            main()
-            break
-        elif panduan(shenfendist) == 'FAIL':
-            data = 'Aa游戏结束,狼人胜利'
-            fasong(fd,data,userdist1)
-            main()
-            break
-        day += 1
-        data = 'AA-----第%d天----' % day
-        fasong(fd,data,userdist1)
-        data = 'AY--预言家请睁眼验人--'
-        fasong(fd,data,userdist1)
-        data = 'AL--狼人请睁眼,决定杀人对象--'
-        fasong(fd,data,userdist1)
-        data = 'AN--女巫请睁眼,决定救人还是毒人--'
-        fasong(fd,data,userdist1)
-        tianliang(fd, userdist1, 0, shenfendist)
-        toupiao(fd,shenfendist)
-
-
-def tianliang(fd,userdist1,n,shenfendist):  # 天亮了
-    data = 'AA--天亮了,昨晚%d号玩家死亡--' % n
+def tianliang(fd, userdist1, DD, shenfendist):  # 天亮了
+    if len(DD) == 1:
+        data = 'AA--天亮了,昨晚%s号玩家死亡--' % DD[0]
+    elif len(DD) == 0:
+        data = 'AA--昨晚平安夜--'
+    elif len(DD) > 1:
+        data = 'AA--天亮了,昨晚%s号和%s玩家死亡--' % (DD[0],DD[1])
     fasong(fd, data, userdist1)
-    dead(fd,n,shenfendist)
-    data = 'A%d--从%d玩家开始发言' % (n+1, n+1)
+    dead(fd,DD,shenfendist)
+    data = 'A%s--从%d玩家开始发言' % (DD[0],int(DD[0])+1)
     fasong(fd,data,userdist1)
 
 
@@ -190,29 +256,25 @@ def sendStatus(fd, shenfendist, userweizhi):  # 发送身份信息 , 等待3秒�
     for a in shenfendist:
         fd.sendto('AW确认身份,3秒开始游戏'.encode(), a)
 
-def toupiao(fd, shenfendist):
-    data = 'AT请开始投票'
-    fasong(fd,data,shenfendist)
-
 def fasong(fd,data,userlist):
     for i in userlist:
         fd.sendto(data.encode(), i)
 
 
-def dead(fd, n, shenfendist):
-    data = 'D' + str(n)
-    for i in shenfendist:
-        fd.sendto(data.encode(), i)
-    del shenfendist[i]
+def dead(fd, DD, shenfendist):
+    for i in DD:
+        data = 'D' + i
+        for a in shenfendist:
+            fd.sendto(data.encode(), a)
+        del shenfendist[i]
 
 
 def panduan(shenfendist):
-    if 'L' not in list(shenfendist.values()):
+    L = list(shenfendist.values)
+    if L.count('L') >= len(L) / 2:
         return 'WIN'
-    elif 'C' not in list(shenfendist.values()) and 'Y' not in list(shenfendist.values()) and 'N' not in list(shenfendist.values()) and 'l' not in list(shenfendist.values()):
+    elif 'L' not in L:
         return 'FAIL'
-    else:
-        return
 
 
 if __name__ == '__main__':

@@ -54,7 +54,7 @@ class Human:
                     break
             elif data.decode()[1] == 'a':
                 print(data.decode()[2:])
-                return            
+                return
         while True:
             data = self.fd.recv(2048)
             if data.decode()[0] == 'A':

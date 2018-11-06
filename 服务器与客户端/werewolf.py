@@ -21,8 +21,12 @@ class Werewolf:
         self.fasong(data, self.addr)
         
     def vote(self):  #vote  投票
-        data = input('请投票(回车弃票):')
-        self.data = 'CT'+data
+        data = input('请投票(15时间决定投票,投票请加DILL数字):')
+        if data[0:5] == 'DILL':
+            data = data[5:]
+            self.data = 'LT'+data
+        else:
+            self.data = 'LJ'+data
         self.fasong(self.data, self.addr)
         
 
@@ -39,25 +43,29 @@ class Werewolf:
             data = self.fd.recv(2048)
             if data.decode()[0] == 'A':
                 print(data.decode()[2:])
-                if data.decode()[1] == 'T':
+                if data.decode()[1] == 'L':
                     self.vote()
                 elif data.decode()[1] == self.weizhi:
                     print(data.decode()[1])
                     self.say()
-            if data.decode()[0] == 'd':
+            if data.decode()[0] == 'D':
                 if data.decode()[1] == self.weizhi:
                     self.dead()
                     break
-            elif data.decode()[1] == 'a':
-                print(data.decode()[2:])
-                return            
-        while True:
-            data = self.fd.recv(2048)
-            if data.decode()[0] == 'A':
+            elif data.decode()[0:2] == 'LJ':
                 print(data.decode()[2:])
             elif data.decode()[1] == 'a':
                 print(data.decode()[2:])
                 return
+        while True:
+            data = self.fd.recv(2048)
+            if data.decode()[1] == 'a':
+                print(data.decode()[2:])
+                return
+            if data.decode()[0] == 'A':
+                print(data.decode()[2:])
+            elif data.decode()[0:2] == 'LJ':
+                print(data.decode()[2:])
 
 def Cun(fd, addr,n):
     L = Werewolf(fd,n, addr)
