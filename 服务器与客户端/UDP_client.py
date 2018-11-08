@@ -38,6 +38,8 @@ def main():
             return
         elif data == 'K':
             data = '1K'
+        elif data == 'OK':
+            continue
         else:
             data = 'AJ'+data
         fd.sendto(data.encode(), addr)

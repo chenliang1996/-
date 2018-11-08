@@ -16,14 +16,19 @@ class Werewolf:
 
 
     def say(self):
-        data = input('请发言:')
-        data ='AA'+data
-        self.fasong(data, self.addr)
+        while True:
+            data = input('请发言:')
+            if data =='OK':
+                data = 'A%s'%self.weizhi+'OK'
+                return
+            else:
+                data ='AA'+data
+            self.fasong(data, self.addr)
         
     def vote(self):  #vote  投票
         data = input('请投票(15时间决定投票,投票请加DILL数字):')
-        if data[0:5] == 'DILL':
-            data = data[5:]
+        if data[0:4] == 'DILL':
+            data = data[4:]
             self.data = 'LT'+data
         else:
             self.data = 'LJ'+data
@@ -34,9 +39,14 @@ class Werewolf:
         self.fd.sendto(data.encode(), addr)
 
     def dead(self):  #有遗言死
-        data = input('请输入要说的遗言:')
-        data = 'AA'+data
-        self.fasong(data, self.addr)
+        while True:
+            data = input('请输入要说的遗言(输入OK结束发言):')
+            if data == 'OK':
+                data = 'A%s'%self.weizhi+'OK'
+                return
+            else:
+                data = 'AA'+data
+            self.fasong(data, self.addr)
         
     def recv_data(self):
         while True:

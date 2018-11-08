@@ -21,14 +21,24 @@ class Human:
         self.fasong(self.data,self.addr)
 
     def say(self):
-        data = input('请发言:')
-        data ='AA'+data
-        self.fasong(data,self.addr)
+        while True:
+            data = input('请输入要说的言论(输入OK结束输入):')
+            if data == 'OK':
+                data = 'A%s'%self.weizhi+'OK'
+                return
+            else:
+                data = 'A%s'%self.weizhi+data
+            self.fasong(data,self.addr)
 
     def dead(self):  #有遗言死
-        data = input('请输入要说的遗言:')
-        data = 'AA'+data
-        self.fasong(data,self.addr)
+        while True:
+            data = input('请输入要说的遗言(输入OK结束输入):')
+            if data == 'OK':
+                data = 'A%s'%self.weizhi+'OK'
+                return
+            else:
+                data = 'A%s'%self.weizhi+data
+            self.fasong(data,self.addr)
 
 
     def dead2(self): #没有遗言死
@@ -40,7 +50,7 @@ class Human:
     def recv_data(self):
         while True:
             data = self.fd.recv(2048)
-            print(data.decode())
+            # print(data.decode())
             if data.decode()[0] == 'A':
                 print(data.decode()[2:])
                 if data.decode()[1] == 'T':
@@ -48,7 +58,7 @@ class Human:
                 elif data.decode()[1] == self.weizhi:
                     print('发言')
                     self.say()
-            if data.decode()[0] == 'd':
+            elif data.decode()[0] == 'D':
                 if data.decode()[1] == self.weizhi:
                     self.dead()
                     break
