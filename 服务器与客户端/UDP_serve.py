@@ -38,27 +38,35 @@ def do_request(fd):
     n = 0
     # L1 = []
     while True:
-        data, addr = fd.recvfrom(1024)
-        datalist = data.decode()
-        print(n)
-        if datalist[0] == 'D':
+        fd.setblocking(False)
+        fd.settimeout(20)
+        try:
+            data, addr = fd.recvfrom(1024)
+            datalist = data.decode()
+        except:
+            datalist = '  '
+        # print(n)
+        finally:
+            if datalist[0] == 'D':
+                if n == 3:
+                    datalist = 'gfs' + datalist
+                    fd.sendto('Q人已经满了'.encode(),addr)
+                else:
+                    n = do_login(fd, addr, datalist[1:],
+                                userdist, n, userweizhi, userdist1)
+            elif datalist[1] == 'J':
+                do_jiaoliu(fd, datalist[2:], addr, userdist, userweizhi, userdist1)
+            elif datalist[0] == '1':
+                if datalist[1] == 'K':
+                    break
+            # if datalist[0] == 'L':
+            #     pass
+            # if datalist[1] == 'W':
+            #     fasong(fd,datalist[2:],userdist)
+            # if datalist[1] == 'T':
+            #     toupiao(L1, datalist, userweizhi)
             if n == 3:
-                datalist = 'gfs' + datalist
-                fd.sendto('Q人已经满了'.encode(),addr)
-            else:
-                n = do_login(fd, addr, datalist[1:],
-                            userdist, n, userweizhi, userdist1)
-        elif datalist[1] == 'J':
-            do_jiaoliu(fd, datalist[2:], addr, userdist, userweizhi, userdist1)
-        elif datalist[0] == '1':
-            if datalist[1] == 'K':
-                break
-        # if datalist[0] == 'L':
-        #     pass
-        # if datalist[1] == 'W':
-        #     fasong(fd,datalist[2:],userdist)
-        # if datalist[1] == 'T':
-        #     toupiao(L1, datalist, userweizhi)
+                fasong(fd,'W人已经满了,1号玩家可以输入K开始游戏',userweizhi)
     begin(fd,userdist,userdist1,userweizhi)
 
 def begin(fd,userdist, userdist1, userweizhi):  # 游戏开始后执行函数
@@ -101,9 +109,12 @@ def liucheng(fd, shenfendist,userdist1,day):  # 天黑了
     fasong(fd, data, userdist1)
     data = 'AY--预言家请睁眼验人--'
     fasong(fd, data, userdist1)
-    # data = ''
-    S = toupiao(fd, l,DD)
-    chulitoupY(fd,shenfendist,S)
+    S = toupiao(fd, l, DD)
+    S = '2'
+    print(S)
+    if not S:
+        S =''
+    chulitoupY(fd,shenfendist,userweizhi,S)
     data = 'AL--狼人请睁眼,决定杀人对象--'
     fasong(fd, data, userdist1)
     L = toupiao(fd, L,DD)
@@ -122,12 +133,13 @@ def liucheng(fd, shenfendist,userdist1,day):  # 天黑了
     return day
 
 
-def toupiao(fd,L,DD):
-    fd.setblocking(False)
-    fd.settimeout(15)
+def toupiao(fd, L, DD):
     try:
+        # fd.setblocking(False)
+        # fd.settimeout(15)
         data, addr = fd.recvfrom(1024)
         datalist = data.decode()
+        print(datalist)
     except:
         return L
     else:
@@ -149,13 +161,16 @@ def toupiao(fd,L,DD):
                 L.append(datalist[2:])
         return L
 
-def chulitoupY(fd, shenfendist, userweizhi, S):
-    for i in userweizhi:
-        if userweizhi[i] == 'S':
-            data = shenfendist[userweizhi[i]]
-            break
-    data = 'YY %s玩家的身份为%s' % (S, data)
-    fasong(fd,data,userdist)
+def chulitoupY(fd,shenfendist,userweizhi,S):
+    if not S:
+        data = 'YY 没有验人'
+    else:
+        for i in userweizhi:
+            if userweizhi[i] == S:
+                data = shenfendist[i]
+                break
+        data = 'YY %s玩家的身份为%s' % (S, data)
+    fasong(fd,data,shenfendist)
     
 
 
@@ -215,7 +230,8 @@ def do_login(fd, addr, username, userdist, n, userweizhi, userdist1):
         n += 1
         fd.sendto('OK'.encode(), addr)
         for i in userdist:
-            data = '欢迎%s 来到游戏间 , 还差%d即可开始游戏...' % (username, 8-n)
+            data = 'W欢迎%s 来到游戏间 , 还差%d即可开始游戏...' % (username, 8-n)
+            # print(data)
             fd.sendto(data.encode(), userdist[i])
         userdist[username] = addr
         userweizhi[addr] = str(n)
@@ -270,7 +286,7 @@ def dead(fd, DD, shenfendist):
 
 
 def panduan(shenfendist):
-    L = list(shenfendist.values)
+    L = list(shenfendist.values())
     if L.count('L') >= len(L) / 2:
         return 'WIN'
     elif 'L' not in L:

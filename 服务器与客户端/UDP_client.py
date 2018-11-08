@@ -36,7 +36,10 @@ def main():
         data = input('输入你要发的消息: ')
         if data == 'exit':
             return
-        data = 'AJ'+data
+        elif data == 'K':
+            data = '1K'
+        else:
+            data = 'AJ'+data
         fd.sendto(data.encode(), addr)
     recv_msg2(fd,addr)
 
@@ -45,10 +48,12 @@ def recv_msg(fd, addr, q = None):
         data = fd.recv(2048)
         if data.decode()[0] == 'q':
             q.put(4, block=False)
+            print()
             print(data.decode()[1:])
         elif data.decode()[0] == 'Q':
             sys.exit(0)
-        elif data.decode()[0] =='W':
+        elif data.decode()[0] == 'W':
+            print()
             print(data.decode()[1:])
 
 def recv_msg2(fd, addr):
