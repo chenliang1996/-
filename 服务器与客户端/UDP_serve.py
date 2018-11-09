@@ -82,8 +82,8 @@ def begin(fd,userdist, userdist1, userweizhi):  # 游戏开始后执行函数
     sendStatus(fd, shenfendist, userweizhi)
     sleep(3)
     # 执行游戏循环流程
+    day = 0
     while True:
-        day = 0
         day = liucheng(fd, shenfendist, userdist1,day)
         data = 'AA请死者说遗言'
         fasong(fd,data,userdist1)
@@ -106,8 +106,10 @@ def fayan(fd,userweizhi,userdist1):
             data,addr = fd.recvfrom(1024)
             data = data.decode()
         except:
-            break
-        finally:
+            data = 'AA发言时间到'
+            fasong(fd, data, userweizhi)
+            return
+        else:
             if data[2:]=='OK':
                 data = 'AA%s号玩家发言结束' %data[1]
                 for i in userweizhi:
@@ -126,11 +128,13 @@ def liucheng(fd, shenfendist,userdist1,day):  # 天黑了
     l = []  #预言家等投票列表
     global DD
     DD = []  #死亡列表
-    if panduan(shenfendist) == 'WIN':
+    AF = panduan(shenfendist)
+    print(AF)
+    if AF == 'WIN':
         data = 'Aa游戏结束,狼人胜利'
         fasong(fd,data,userdist1)
         main()
-    elif panduan(shenfendist) == 'FAIL':
+    elif AF == 'FAIL':
         data = 'Aa游戏结束,狼人失败'
         fasong(fd,data,userdist1)
         main()
@@ -140,7 +144,6 @@ def liucheng(fd, shenfendist,userdist1,day):  # 天黑了
     data = 'AY--预言家请睁眼验人--'
     fasong(fd, data, userdist1)
     S = toupiao(fd, l, DD)
-    S = '2'
     if not S:
         S =''
     chulitoupY(fd,shenfendist,userweizhi,S)
@@ -315,13 +318,19 @@ def dead(fd, DD, shenfendist):
         data = 'D' + i
         for a in shenfendist:
             fd.sendto(data.encode(), a)
-        for b,c in userweizhi.items():
-            if c == 'i':
+        for b, c in userweizhi.items():
+            if c == i:
                 del shenfendist[b]
+                print(shenfendist)
                 del userweizhi[b]
+                print(userweizhi)
+                break
 
 def panduan(shenfendist):
     L = list(shenfendist.values())
+    print(L)
+    print(L.count('L'))
+    print(len(L) / 2)
     if L.count('L') >= len(L) / 2:
         return 'WIN'
     elif 'L' not in L:

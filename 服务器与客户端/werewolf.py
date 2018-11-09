@@ -42,11 +42,12 @@ class Werewolf:
         while True:
             data = input('请输入要说的遗言(输入OK结束发言):')
             if data == 'OK':
-                data = 'A%s'%self.weizhi+'OK'
-                return
+                data = 'A%s' % self.weizhi + 'OK'
+                break
             else:
                 data = 'AA'+data
             self.fasong(data, self.addr)
+        self.fasong(data, self.addr)
         
     def recv_data(self):
         while True:
