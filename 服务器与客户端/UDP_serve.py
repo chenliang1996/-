@@ -48,7 +48,7 @@ def do_request(fd):
         # print(n)
         finally:
             if datalist[0] == 'D':
-                if n == 3:
+                if n == 7:
                     datalist = 'gfs' + datalist
                     fd.sendto('Q人已经满了'.encode(),addr)
                 else:
@@ -194,7 +194,7 @@ def toupiao(fd, L, DD):
                 return 
             elif datalist[0] == 'A':  # 白天投票出局人
                 if datalist[2:] is not '':
-                    L.append(datalist[2:])
+                    return L
             return L
 
 def chulitoupY(fd,shenfendist,userweizhi,S):
@@ -291,9 +291,9 @@ def tianliang(fd, userdist1, DD, shenfendist):  # 天亮了
 
 def distribute(userweizhi):  # 游戏开始的第一步，分发身份信息
     from random import shuffle
-    if len(userweizhi) == 3:
-        # L = ['L', 'L', 'L', 'C', 'C', 'Y', 'N', 'l']
-        L = ['C','C','L']
+    if len(userweizhi) == 7:
+        L = ['L', 'L', 'L', 'C', 'C', 'Y', 'N']
+        # L = ['C','C','L']
         shuffle(L)  # 把列表顺序打乱
         shenfendist = dict(zip(userweizhi, L))
         return shenfendist

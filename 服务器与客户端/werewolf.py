@@ -4,15 +4,28 @@ class Werewolf:
     '''角色狼人,可发言,投票,夜晚杀人,自爆直接进入夜晚,死亡'''
     def __init__(self,fd,weizhi,addr):
         self.weizhi = str(weizhi)
-        print(self.weizhi)
+        print('你的位置在:'+self.weizhi+'号位置')
         print('你的身份是狼人')
         self.fd = fd
         self.addr = addr
         self.recv_data()
     
     def toupiao(self):
-        data = input('请投票(请输入数字,q弃票):')
-        return data
+        while True:
+            data = input('请投票(输入Q弃票):')
+            if data == 'Q':
+                data = 'AT'
+                self.fasong(self.data, self.addr)
+                break
+            try:
+                int(data)
+            except:
+                print('输入有误,重新输入')
+                continue
+            else:
+                self.data = 'AT'+data
+                self.fasong(self.data, self.addr)
+                break
 
 
     def say(self):
@@ -26,14 +39,15 @@ class Werewolf:
             self.fasong(data, self.addr)
         
     def vote(self):  #vote  投票
-        data = input('请投票(15时间决定投票,投票请加DILL数字):')
-        if data[0:4] == 'DILL':
-            data = data[4:]
-            self.data = 'LT'+data
-        else:
-            self.data = 'LJ'+data
-        self.fasong(self.data, self.addr)
-        
+        while True:
+            data = input('请投票(15秒时间决定投票,投票请加DILL数字):')
+            if data[0:4] == 'DILL':
+                data = data[4:]
+                self.data = 'LT' + data
+                break
+            else:
+                self.data = 'LJ'+data
+            self.fasong(self.data, self.addr)
 
     def fasong(self, data , addr): #用来发送消息
         self.fd.sendto(data.encode(), addr)
@@ -56,9 +70,10 @@ class Werewolf:
                 print(data.decode()[2:])
                 if data.decode()[1] == 'L':
                     self.vote()
-                elif data.decode()[1] == self.weizhi:
-                    print(data.decode()[1])
+                elif data.decode()[1] == self.weizhi
                     self.say()
+                elif data.decode()[1] == 'T':
+                    self.toupiao()
             if data.decode()[0] == 'D':
                 if data.decode()[1] == self.weizhi:
                     self.dead()

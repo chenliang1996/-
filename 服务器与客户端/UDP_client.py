@@ -9,6 +9,8 @@ import os, sys
 from multiprocessing import *
 import human
 import werewolf
+import yuyanjia
+import nvwu
 
 def main():
     fd = socket(AF_INET, SOCK_DGRAM)
@@ -69,9 +71,11 @@ def recv_msg2(fd, addr):
     if data.decode()[0] == 'l':
         pass
     if data.decode()[0] == 'Y':
-        pass
+        n = int(data.decode()[1])
+        yuyanjia.Cun(fd,addr,n)
     if data.decode()[0] == 'N':
-        pass
+        n = int(data.decode()[1])
+        nvwu.Cun(fd,addr,n)
     if data.decode()[0] == 'B':
         pass
 
