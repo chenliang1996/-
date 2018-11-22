@@ -4,14 +4,14 @@
 # from fasong import *
 
 class Human:
-    '''村民(CL)
+    '''猎人(lr)
     属性 : 1.位置()
     方法 : 1.投票  2.发言  3.死亡'''
     def __init__(self,fd,addr,weizhi):  #weizhi 人物位置
         self.weizhi = str(weizhi)
         print('你的位置在:'+self.weizhi+'号位置')
         self.fd = fd
-        print('你的身份是村民')
+        print('你的身份是猎人')
         self.addr = addr
         self.recv_data()
     
@@ -50,12 +50,21 @@ class Human:
                 break
             else:
                 data = 'A%s' % self.weizhi + data
-            self.fasong(data,self.addr)   
-        self.fasong(data,self.addr)
+            self.fasong(data,self.addr)
+        self.fasong(data, self.addr)
 
 
     def dead2(self): #没有遗言死
         pass
+
+    # def jineng(self):  #猎人技能
+    #     data = input('请输入要说的射击位置(输入NO取消技能):')
+    #     if data == 'NO':
+    #         data = 'NO'
+
+
+
+
 
     def fasong(self, data , addr): #用来发送消息
         self.fd.sendto(data.encode(),addr)
@@ -93,9 +102,9 @@ def Cun(fd, addr,n):
     C = Human(fd, addr, n)
     
 if __name__ == '__main__':
-    from socket import *
-    fd = socket(AF_INET, SOCK_DGRAM)
-    fd.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    addr = ('127.0.0.1', 8888)
-    C = Human(fd,addr,1)
+    A = Human(1,456)
+    # A.vote()
+    A.say()
+    A.dead()
+
 

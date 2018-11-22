@@ -48,7 +48,7 @@ def do_request(fd):
         # print(n)
         finally:
             if datalist[0] == 'D':
-                if n == 7:
+                if n == 4:
                     datalist = 'gfs' + datalist
                     fd.sendto('Q人已经满了'.encode(),addr)
                 else:
@@ -59,7 +59,7 @@ def do_request(fd):
             elif datalist[0] == '1':
                 if datalist[1] == 'K':
                     break
-            if n == 3:
+            if n == 4:
                 fasong(fd,'W人已经满了,1号玩家可以输入K开始游戏',userweizhi)
     begin(fd,userdist,userdist1,userweizhi)
 
@@ -167,6 +167,7 @@ def liucheng(fd, shenfendist,userdist1,day):  # 天黑了
 
 def toupiao(fd, L, DD):
     while True:
+        print(1)
         try:
             fd.setblocking(False)
             fd.settimeout(15)
@@ -219,7 +220,7 @@ def chulitoupL(fd,L,shenfendist):  #狼人投票处理
             if L.count(i) > max_count:
                 max_str = i
                 max_count = L.count(i)
-    return max_str
+        return max_str
 
         
 def chulitoupB(fd, L, userweizhi):  #白天投票处理
@@ -284,15 +285,15 @@ def tianliang(fd, userdist1, DD, shenfendist):  # 天亮了
     elif len(DD) > 1:
         data = 'AA--天亮了,昨晚%s号和%s玩家死亡--' % (DD[0],DD[1])
     fasong(fd, data, userdist1)
-    dead(fd,DD,shenfendist)
+    dead(fd, DD, shenfendist)
 
     
 
 
 def distribute(userweizhi):  # 游戏开始的第一步，分发身份信息
     from random import shuffle
-    if len(userweizhi) == 7:
-        L = ['L', 'L', 'L', 'C', 'C', 'Y', 'N']
+    if len(userweizhi) == 4:
+        L = ['L','C', 'Y', 'N']
         # L = ['C','C','L']
         shuffle(L)  # 把列表顺序打乱
         shenfendist = dict(zip(userweizhi, L))

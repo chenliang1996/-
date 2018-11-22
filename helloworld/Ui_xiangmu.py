@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 # Form implementation generated from reading ui file 'd:\中期项目\helloworld\xiangmu.ui'
 #
 # Created by: PyQt5 UI code generator 5.6
@@ -22,7 +21,6 @@ class Ui_MainWindow(object):
         font.setStrikeOut(False)
         MainWindow.setFont(font)
         MainWindow.setMouseTracking(False)
-        MainWindow.setTabletTracking(False)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("C:/Users/Python/Desktop/图标.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -31,6 +29,8 @@ class Ui_MainWindow(object):
         MainWindow.setAccessibleDescription("")
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setInputMethodHints(QtCore.Qt.ImhDate)
+        # MainWindow.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint)
+        MainWindow.setFixedSize(MainWindow.width(),MainWindow.height())
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -76,8 +76,16 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "狼人杀"))
-        MainWindow.setToolTip(_translate("MainWindow", "1"))
+        MainWindow.setToolTip(_translate("MainWindow", "输入6到16位普通字符"))
         self.lineEdit.setPlaceholderText(_translate("MainWindow", "请输入账号"))
         self.lineEdit_2.setPlaceholderText(_translate("MainWindow", "请输入密码"))
         self.label_2.setText(_translate("MainWindow", "账号"))
 
+if __name__=="__main__":  
+    import sys  
+    app=QtWidgets.QApplication(sys.argv)
+    formObj=QtWidgets.QMainWindow()  #注意，这里和我们一开始创建窗体时使用的界面类型相同
+    ui=Ui_MainWindow()  
+    ui.setupUi(formObj)  
+    formObj.show()  
+    sys.exit(app.exec_())

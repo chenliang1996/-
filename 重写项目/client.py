@@ -8,10 +8,16 @@ from socket import *
 import os
 import sys
 from multiprocessing import *
+from time import sleep
+import human
+import werewolf
+import yuyanjia
+import nvwu
+
 
 def main():
     fd = foundfd()
-    addr = ('176.215.133.165', 8888)
+    addr = ('127.0.0.1', 8888)
     # fd.sendto('DD你好'.encode(),addr)
     while True:
         b = denglu(fd, addr)
@@ -21,15 +27,17 @@ def main():
     p = Process(target=recv_msg, name='Psend', args=(fd, addr, q))
     # p.daemon = True
     p.start()
-    while True:0
+    while True:
+        data = input('输入你要发的消息: ')
+        print('可以随意输入消息,1号玩家可以随时开始游戏')
         if q.empty() == False:
             break
-        data = input('输入你要发的消息: ')
         data = 'JA'+data
         fd.sendto(data.encode(), addr)
-    input('结束:')
+    recv_msg2(fd, addr)
 
-def recv_msg(fd, addr, q = None):
+
+def recv_msg(fd, addr, q=None):
     while True:
         data = fd.recv(2048)
         if data.decode()[0] == 'q':
@@ -62,6 +70,29 @@ def foundfd():
     fd = socket(AF_INET, SOCK_DGRAM)
     fd.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     return fd
+
+
+def recv_msg2(fd, addr):
+    data = fd.recv(2048)
+    print(data.decode())
+    if data.decode()[0] == 'L':
+        n = data.decode()[1]
+        werewolf.Cun(fd, addr, n)
+    if data.decode()[0] == 'C':
+        n = data.decode()[1]
+        human.Cun(fd, addr, n)
+    if data.decode()[0] == 'l':
+        # n = int(data.decode()[1])
+        # lieren.Cun(fd,addr,n)
+        pass
+    if data.decode()[0] == 'Y':
+        n = data.decode()[1]
+        yuyanjia.Cun(fd, addr, n)
+    if data.decode()[0] == 'N':
+        n = data.decode()[1]
+        nvwu.Cun(fd, addr, n)
+    if data.decode()[0] == 'B':
+        pass
 
 
 if __name__ == "__main__":

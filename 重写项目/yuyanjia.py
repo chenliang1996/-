@@ -18,9 +18,7 @@ class Yyanjia:
     def vote(self):  #vote  查人
         while True:
             data = input('请投票(要查验的位置):')
-            try:
-                int(data)
-            except:
+            if data not in self.b:
                 print('输入有误,重新输入')
                 continue
             else:
@@ -32,9 +30,7 @@ class Yyanjia:
     def toupiao(self):
         while True:
             data = input('请投票(要出局的的位置):')
-            try:
-                int(data)
-            except:
+            if data not in self.b:
                 print('输入有误,重新输入')
                 continue
             else:
@@ -66,48 +62,52 @@ class Yyanjia:
         self.fasong(data,self.addr)
 
 
-    def dead2(self): #没有遗言死
-        pass
-
     def fasong(self, data , addr): #用来发送消息
         self.fd.sendto(data.encode(),addr)
 
     def recv_data(self):
+        import re
         while True:
-            data = self.fd.recv(2048)
-            # print(data.decode())
-            if data.decode()[0] == 'A':
-                print(data.decode()[2:])
-                if data.decode()[1] == 'T':
-                    self.vote()
-                elif data.decode()[1] == self.weizhi:
-                    print('发言')
-                    self.say()
-            elif data.decode()[0] == 'D':
-                if data.decode()[1] == self.weizhi:
-                    self.dead()
-                    break
-            elif data.decode()[1] == 'a':
-                print(data.decode()[2:])
+            data ,addr = self.fd.recvfrom(1024)
+            data = data.decode()
+            if data[0] == 'A' or data[0] == 'Y':
+                print(data[3:])
+                if data[1] == 'Y':
+                    if data[2] == 'T':
+                        self.b = re.findall(r'[1-9]+',data)
+                        self.vote()
+                elif data[1] == 'A':
+                    if data[2] == 'T':
+                        self.toupiao()
+                elif data[1] == self.weizhi:
+                    if data[2] == 'S':
+                        self.say()
+                    elif data[2] == 'D':
+                        self.dead()
+                        break
+            elif data[3] == 'a':
+                print(data[3:])
                 return
         while True:
             data = self.fd.recv(2048)
             if data.decode()[0] == 'A':
-                print(data.decode()[2:])
-            elif data.decode()[1] == 'a':
-                print(data.decode()[2:])
+                print(data.decode()[3:])
+            elif data.decode()[3] == 'a':
+                print(data.decode()[3:])
                 return
 
     
 
 
 def Cun(fd, addr,n):
-    C = Nvwu(fd, addr, n)
+    C = Yyanjia(fd, addr, n)
     
 if __name__ == '__main__':
-    A = Nvwu(1,456,3)
-    # A.vote()
-    A.say()
-    A.dead()
+    from socket import *
+    fd = socket(AF_INET, SOCK_DGRAM)
+    fd.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    addr = ('127.0.0.1', 8888)
+    C = Yyanjia(fd,addr,1)
+
 
 

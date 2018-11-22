@@ -40,7 +40,7 @@
    <double>1.000000000000000</double>
   </property>
   <property name="toolTip">
-   <string>1</string>
+   <string/>
   </property>
   <property name="whatsThis">
    <string/>
@@ -112,7 +112,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>10</pointsize>
+      <pointsize>15</pointsize>
      </font>
     </property>
     <property name="maxLength">
@@ -121,8 +121,20 @@
     <property name="echoMode">
      <enum>QLineEdit::Password</enum>
     </property>
+    <property name="dragEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="readOnly">
+     <bool>false</bool>
+    </property>
     <property name="placeholderText">
      <string>请输入密码</string>
+    </property>
+    <property name="cursorMoveStyle">
+     <enum>Qt::VisualMoveStyle</enum>
+    </property>
+    <property name="clearButtonEnabled">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -151,6 +163,34 @@
     </property>
     <property name="text">
      <string>账号</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>254</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>51</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>华文隶书</family>
+      <pointsize>18</pointsize>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>密码</string>
     </property>
    </widget>
   </widget>

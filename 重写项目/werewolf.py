@@ -46,8 +46,9 @@ class Werewolf:
                 self.data = 'LT' + data
                 break
             else:
-                self.data = 'LJ'+data
-            self.fasong(self.data, self.addr)
+                self.data = 'LJ' + data
+                self.fasong(self.data, self.addr)
+        self.fasong(self.data, self.addr)
 
     def fasong(self, data , addr): #用来发送消息
         self.fd.sendto(data.encode(), addr)
@@ -66,22 +67,25 @@ class Werewolf:
     def recv_data(self):
         while True:
             data = self.fd.recv(2048)
-            if data.decode()[0] == 'A':
-                print(data.decode()[2:])
-                if data.decode()[1] == 'L':
-                    self.vote()
-                elif data.decode()[1] == self.weizhi:
-                    self.say()
-                elif data.decode()[1] == 'T':
-                    self.toupiao()
-            if data.decode()[0] == 'D':
-                if data.decode()[1] == self.weizhi:
-                    self.dead()
-                    break
-            elif data.decode()[0:2] == 'LJ':
-                print(data.decode()[2:])
-            elif data.decode()[1] == 'a':
-                print(data.decode()[2:])
+            data = data.decode()
+            if data[0] == 'A' or data[0] =='L':
+                print(data[3:])
+                if data[1] == 'L':
+                    if data[2] == 'T':
+                        self.vote()
+                elif data[1] == self.weizhi:
+                    if data[2] == 'S':
+                        self.say()
+                    elif data[2] == 'D':
+                        self.dead()
+                        break
+                elif data[1] == 'A':
+                    if data[2] == 'T':
+                        self.toupiao()
+            elif data[0:2] == 'LJ':
+                print(data[2:])
+            elif data[1] == 'a':
+                print(data[2:])
                 return
         while True:
             data = self.fd.recv(2048)

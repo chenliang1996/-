@@ -3,21 +3,36 @@
 # 方法 : 1.投票  2.发言  3.死亡
 # from fasong import *
 
-class Human:
-    '''村民(CL)
+class Nvwu:
+    '''女巫(NW)
     属性 : 1.位置()
     方法 : 1.投票  2.发言  3.死亡'''
     def __init__(self,fd,addr,weizhi):  #weizhi 人物位置
         self.weizhi = str(weizhi)
         print('你的位置在:'+self.weizhi+'号位置')
         self.fd = fd
-        print('你的身份是村民')
+        print('你的身份是女巫')
         self.addr = addr
         self.recv_data()
     
     def vote(self):  #vote  投票
         while True:
-            data = input('请投票(输入Q弃票):')
+            data = input('请投票(救人请输入Q+位置,毒人输入D+位置):')
+            if data[0] == 'D':
+                data = data[1:]
+                self.data = 'nT'+data
+            elif data[0] == 'Q':
+                self.data = 'NT' + data
+            else:
+                print('输入有误,重新输入')
+                continue
+            self.fasong(self.data, self.addr)
+            break
+        
+
+    def toupiao(self):
+        while True:
+            data = input('请投票要出局的位置(输入Q弃票):')
             if data == 'Q':
                 data = 'AT'
                 self.fasong(self.data, self.addr)
@@ -32,15 +47,17 @@ class Human:
                 self.fasong(self.data, self.addr)
                 break
 
+
     def say(self):
         while True:
             data = input('请输入要说的言论(输入OK结束输入):')
             if data == 'OK':
-                data = 'A%s'%self.weizhi+'OK'
-                return
+                data = 'A%s' % self.weizhi + 'OK'
+                break
             else:
                 data = 'A%s'%self.weizhi+data
-            self.fasong(data,self.addr)
+            self.fasong(data, self.addr)
+        self.fasong(data,self.addr)
 
     def dead(self):  #有遗言死
         while True:
@@ -90,12 +107,12 @@ class Human:
 
 
 def Cun(fd, addr,n):
-    C = Human(fd, addr, n)
+    C = Nvwu(fd, addr, n)
     
 if __name__ == '__main__':
-    from socket import *
-    fd = socket(AF_INET, SOCK_DGRAM)
-    fd.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    addr = ('127.0.0.1', 8888)
-    C = Human(fd,addr,1)
+    A = Nvwu(1,456,3)
+    # A.vote()
+    A.say()
+    A.dead()
+
 

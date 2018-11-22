@@ -93,9 +93,9 @@ def Cun(fd, addr,n):
     C = Human(fd, addr, n)
     
 if __name__ == '__main__':
-    from socket import *
-    fd = socket(AF_INET, SOCK_DGRAM)
-    fd.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-    addr = ('127.0.0.1', 8888)
-    C = Human(fd,addr,1)
+    A = Human(1,456)
+    # A.vote()
+    A.say()
+    A.dead()
+
 
