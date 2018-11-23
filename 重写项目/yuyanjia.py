@@ -85,9 +85,9 @@ class Yyanjia:
                     elif data[2] == 'D':
                         self.dead()
                         break
-            elif data[3] == 'a':
-                print(data[3:])
-                return
+                elif data[3] == 'a':
+                    print(data[3:])
+                    return
         while True:
             data = self.fd.recv(2048)
             if data.decode()[0] == 'A':

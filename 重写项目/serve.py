@@ -51,11 +51,13 @@ def main():  # 循环接收消息 并针对处理
     # 狼人获胜,反之继续.若狼人全部死亡,则狼人失败.
     day = 0
     #shenfendict 是 addr为键,身份为值
-    Ydict = dict(zip(weizhidict.values(), shenfenlist))  #死亡的人这里也要删除
-    Ldict = Ydict.copy()
-    print(Ydict)
+    Ydict = dict(zip(weizhidict.values(), shenfenlist))  #死亡的人这里也要删除 位置为键,身份为值
+    Ndict = Ydict.copy()#女巫的字典
+    Ldict = Ydict.copy()#狼人的字典
+    Klist = []#死亡列表
     while True:
         # if panduan(shenfenlist) == None:
+        Dlist = []#当天死亡列表
         day += 1
         data = 'AAW-----第%d天----' % day
         fasong(fd, data, weizhidict)
@@ -74,13 +76,34 @@ def main():  # 循环接收消息 并针对处理
         fasong(fd, data, weizhidict)
         ab = []
         ab = Lchuli(fd, Ldict, weizhidict,ab)
-        print(ab)
         k = Lchuli2(fd, Ldict, ab)
+        Dlist.append(k)
         data = 'LLW--你们杀死的玩家是%s--'%k
         fasong(fd, data, weizhidict)
-        
+        data = 'AAW--女巫请睁眼--'
+        fasong(fd, data, weizhidict)
+        N = ','.join(list(Ndict))
+        data = 'NNT--昨晚死的玩家是%s,存活玩家有%s--'%(k,N)
+        fasong(fd, data, weizhidict)
+        Nchuli(fd, Dlist, weizhidict)
+        Achuli(fd,Dlist,Klist,weizhidict,shenfendict)
 
+def Achuli(fd, Dlist, Klist, weizhidict, shenfendict):
+    pass
 
+def Nchuli(fd, Dlist, weizhidict):
+    try:
+        fd.setblocking(False)
+        fd.settimeout(15)
+        data, addr = fd.recvfrom(1024)
+        data = data.decode()
+    except:
+        return Dlist
+    if data[0:2] == 'nT':
+        Dlist.append(data[2:])
+    elif data[0:2] == 'NT':
+        Dlist.clear(data[2:])
+    
 
 def Lchuli2(fd, Ldict, L):#狼人投票处理
     max_count = 0
@@ -107,13 +130,15 @@ def Lchuli(fd, Ldict,weizhidict,ab):# 狼人投票第一步处理,收集所有�
             continue
         if data[0:2] == 'LJ':
             data1 = 'LLJ%s号玩家说%s' % (weizhidict[addr], data[2:])
-            fasong(fd, data, weizhidict)
+            fasong(fd, data1, weizhidict)
         elif data[0:2]=='LT':
             ab.append(data[2:])
             n -= 1
             if n == 0:
                 break
-            print(n,'狼人个数')
+            print(n, '狼人个数')
+    data1 = 'exit'
+    fasong(fd,data1,weizhidict)
     return ab
 
 
@@ -131,8 +156,6 @@ def Ychuli(fd, Ydict,):
         del Ydict[data[2:]]
         
 
-
-
 def panduan(L):
     print(L.count('L'))
     print(len(L) / 2)
@@ -149,22 +172,18 @@ def fasong(fd, data, userlist):  # 发送函数,发送给指定字典或列表�
 
 def secv_shenfen(fd, weizhidict):  # 一共10个if
     from random import shuffle
-    if len(weizhidict) == 3:
+    if len(weizhidict) == 4:
         # L = ['L', 'C', 'Y', 'N']
-        L = ['Y','L','L']
-        shuffle(L)  # 把列表顺序打乱
+        L = ['Y','L','L','N']
     elif len(weizhidict) == 6:
         L = ['L', 'C', 'Y', 'N']
-        shuffle(L)  # 把列表顺序打乱
     elif len(weizhidict) == 7:
         L = ['L', 'C', 'Y', 'N']
-        shuffle(L)  # 把列表顺序打乱
     elif len(weizhidict) == 8:
         L = ['L', 'C', 'Y', 'N']
-        shuffle(L)  # 把列表顺序打乱
     elif len(weizhidict) == 9:
         L = ['L', 'C', 'Y', 'N']
-        shuffle(L)  # 把列表顺序打乱
+    shuffle(L)  # 把列表顺序打乱
     shenfendist = dict(zip(weizhidict, L))
     for i in shenfendist:
         data = shenfendist[i]+str(weizhidict[i])
@@ -176,7 +195,7 @@ def begin(fd, weizhidict):  # 游戏开始后执行函数(目的关闭客户端�
     for i in weizhidict:
         data = 'W游戏将在5秒后开始'.encode()
         fd.sendto(data, i)
-    for i in range(5, 1, -1):
+    for i in range(5, 0, -1):
         data = 'JA%d秒后开始!' % (i)
         for i in weizhidict:
             fd.sendto(data.encode(), i)
@@ -203,7 +222,7 @@ def chulidenglu(fd, data, addr, weizhidict, mingzidict, n):  # 处理登录函�
         fd.sendto('名字已经存在'.encode(), addr)
         return False
     else:
-        fd.sendto(b'OK', addr)
+        fd.sendto(('OK'+str(n+1)).encode(), addr)
         for i in weizhidict:
             data = '欢迎%s进入房间,还差%d的人满员' % (data[2:], (4-int(n)))
             fd.sendto(data.encode(), i)

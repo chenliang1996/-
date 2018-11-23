@@ -58,8 +58,9 @@ def denglu(fd, addr):
     # data1 = fd.recvfrom(1024)
     data = fd.recv(1024)
     data = data.decode()
-    if data == 'OK':
+    if data[0:2] == 'OK':
         print('登录成功 , 等待满员开始游戏')
+        print('你是%s号玩家'%data[2:])
         return True
     else:
         print(data)

@@ -1,4 +1,4 @@
-
+from multiprocessing import Process
 
 class Werewolf:
     '''角色狼人,可发言,投票,夜晚杀人,自爆直接进入夜晚,死亡'''
@@ -39,9 +39,11 @@ class Werewolf:
             self.fasong(data, self.addr)
         
     def vote(self):  #vote  投票
+        p = Process(target=recv_from, args=(self.fd,))
+        p.start()
         while True:
-            data = input('请投票(15秒时间决定投票,投票请加DILL数字):')
-            if data[0:4] == 'DILL':
+            data = input('请投票(15秒时间决定投票,投票请加KILL数字):')
+            if data[0:4] == 'KILL':
                 data = data[4:]
                 self.data = 'LT' + data
                 break
@@ -49,6 +51,7 @@ class Werewolf:
                 self.data = 'LJ' + data
                 self.fasong(self.data, self.addr)
         self.fasong(self.data, self.addr)
+        p.join()
 
     def fasong(self, data , addr): #用来发送消息
         self.fd.sendto(data.encode(), addr)
@@ -98,4 +101,16 @@ class Werewolf:
                 print(data.decode()[2:])
 
 def Cun(fd, addr,n):
-    L = Werewolf(fd,n, addr)
+    L = Werewolf(fd, n, addr)
+    
+def recv_from(fd):
+    import sys
+    while True:
+        data = fd.recv(1024)
+        data = data.decode()
+        if data == 'exit':
+            sys.exit(1)
+        elif data[0:3] == 'LLJ':
+            print(data[3:])
+
+        
