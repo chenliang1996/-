@@ -57,14 +57,13 @@ class Human:
     def dead2(self): #没有遗言死
         pass
 
-    # def jineng(self):  #猎人技能
-    #     data = input('请输入要说的射击位置(输入NO取消技能):')
-    #     if data == 'NO':
-    #         data = 'NO'
-
-
-
-
+    def jineng(self):  #猎人技能
+        data = input('请输入要说的射击位置(输入NO取消技能):')
+        if data == 'NO':
+            data = 'NO'
+        else:
+            data = 'lT' + data
+        self.fasong(data,self.addr)
 
     def fasong(self, data , addr): #用来发送消息
         self.fd.sendto(data.encode(),addr)
@@ -80,12 +79,12 @@ class Human:
                 elif data.decode()[1] == self.weizhi:
                     print('发言')
                     self.say()
-            elif data.decode()[0] == 'D':
-                if data.decode()[1] == self.weizhi:
-                    self.dead()
-                    break
-            elif data.decode()[1] == 'a':
-                print(data.decode()[2:])
+            if data.decode()[0:3] == 'DDS':
+                self.jineng()
+                break
+            if data.decode()[0:3] == 'DDW':
+                break
+            if data.decode()[3] == 'a':
                 return
         while True:
             data = self.fd.recv(2048)

@@ -12,11 +12,14 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(400, 300)
-
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setGeometry(QtCore.QRect(60, 10, 75, 23))
+        self.pushButton.setObjectName("pushButton")
 
     def retranslateUi(self, Form):
+        self.pushButton.setText(_translate("MainWindow", "点击次数加一"))
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "chenliang"))
 

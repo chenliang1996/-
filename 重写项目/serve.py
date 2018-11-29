@@ -19,7 +19,7 @@ def main():  # 循环接收消息 并针对处理
     global mingzidict
     mingzidict = {}
     global minzidict
-    minzidict = {'Y':'好人','C':'好人','L':'狼人','l':'好人','N':'好人'}
+    minzidict = {'Y': '好人', 'C': '好人', 'L': '狼人', 'l': '好人', 'N': '好人'}
     n = 0
     while True:
         data, addr = fd.recvfrom(1024)
@@ -50,21 +50,24 @@ def main():  # 循环接收消息 并针对处理
     # 第一步,判断游戏是否需要继续进行;若狼人数量超过总人数的一半即以上则游戏结束
     # 狼人获胜,反之继续.若狼人全部死亡,则狼人失败.
     day = 0
-    #shenfendict 是 addr为键,身份为值
-    Ydict = dict(zip(weizhidict.values(), shenfenlist))  #死亡的人这里也要删除 位置为键,身份为值
-    Ndict = Ydict.copy()#女巫的字典
-    Ldict = Ydict.copy()#狼人的字典
-    Klist = []#死亡列表
+    # shenfendict 是 addr为键,身份为值
+    Ydict = dict(zip(weizhidict.values(), shenfenlist))  # 死亡的人这里也要删除 位置为键,身份为值
+    Ndict = Ydict.copy()  # 女巫的字典
+    Ldict = Ydict.copy()  # 狼人的字典
+    Klist = []  # 死亡列表
+    p = 1  #判断猎人死没死
+    O = list(weizhidict.values())
+    O.sort()
     while True:
         # if panduan(shenfenlist) == None:
-        Dlist = []#当天死亡列表
+        Dlist = []  # 当天死亡列表
         day += 1
         data = 'AAW-----第%d天----' % day
         fasong(fd, data, weizhidict)
         data = 'AAW--预言家请睁眼验人--'
         fasong(fd, data, weizhidict)
         s = ','.join(list(Ydict))
-        data = 'AYT--未查验的人有%s号玩家--' %s
+        data = 'AYT--未查验的人有%s号玩家--' % s
         fasong(fd, data, weizhidict)
         # data = 'A1S1号玩家发言'
         # fasong(fd, data, weizhidict)
@@ -72,24 +75,94 @@ def main():  # 循环接收消息 并针对处理
         data = 'AAW--狼人请投票刀人--'
         fasong(fd, data, weizhidict)
         S = ','.join(list(Ldict))
-        data = 'ALT--现在存活的玩家有%s号玩家--' %S
+        data = 'ALT--现在存活的玩家有%s号玩家--' % S
         fasong(fd, data, weizhidict)
         ab = []
-        ab = Lchuli(fd, Ldict, weizhidict,ab)
+        ab = Lchuli(fd, Ldict, weizhidict, ab)
         k = Lchuli2(fd, Ldict, ab)
         Dlist.append(k)
-        data = 'LLW--你们杀死的玩家是%s--'%k
+        print(Dlist)
+        data = 'LLW--你们杀死的玩家是%s--' % k
         fasong(fd, data, weizhidict)
         data = 'AAW--女巫请睁眼--'
         fasong(fd, data, weizhidict)
         N = ','.join(list(Ndict))
-        data = 'NNT--昨晚死的玩家是%s,存活玩家有%s--'%(k,N)
+        data = 'NNT--昨晚死的玩家是%s,存活玩家有%s--' % (k, N)
         fasong(fd, data, weizhidict)
-        Nchuli(fd, Dlist, weizhidict)
-        Achuli(fd,Dlist,Klist,weizhidict,shenfendict)
+        Dlist = Nchuli(fd, Dlist, weizhidict)
+        # print(Dlist)
+        # print(Klist, Ydict, weizhidict, shenfendict)
+        Klist, Ydict, weizhidict, shenfendict = Achuli(fd, Dlist, Klist, Ydict, weizhidict, shenfendict)
+        # print(Klist, Ydict, weizhidict, shenfendict)
+        AS = ','.join(Dlist)
+        data = 'AAW--天亮了,昨晚死的玩家是%s号玩家' % AS
+        fasong(fd, data, weizhidict)
+        Dlist, Klist, Ydict, shenfendict,p = Deadchuli(fd,Dlist,Klist, Ydict, weizhidict, shenfendict,p)
+        Deadjiaoliu(fd, O, Dlist, day, weizhidict)
+            
 
-def Achuli(fd, Dlist, Klist, weizhidict, shenfendict):
-    pass
+def Deadjiaoliu(fd, O, Dlist, day, weizhidict):
+    if day == 1:
+        if not Dlist:
+            return
+        else:
+            if len(Dlist)==2:
+                O.remove(Dlist[0])
+                O.insert(0,Dlist[0])
+                while True:
+                    if O[0] == Dlist[1]:
+                        break
+                    else:
+                        O.append(O.pop(0))
+            else:
+                while True:
+                    if O[0] == Dlist[0]:
+                        break
+                    else:
+                        O.append(O.pop(0))
+
+
+
+def Deadchuli(fd,Dlist, Klist, Ydict, weizhidict, shenfendict,p):
+    if p==1:
+        if 'l' not in shenfendict.values():
+            data = 'AAW--昨晚猎人死亡--'
+            fasong(fd, data, weizhidict)
+            p -= 1
+            try:
+                data,addr = fd.recvfrom(1024)
+                data = data.decode()
+            except:
+                pass
+            if not data[1:]:
+                pass
+            else:
+                Dlist.append(data[1:])
+                Klist.append(data[1:])
+                del Ydict[data[1:]]
+                for i in shenfendict:
+                    if shenfendict[i] == data[1:]:
+                        del shenfendict[i]
+
+    return Dlist, Klist, Ydict, shenfendict,p
+
+def Achuli(fd, Dlist, Klist, Ydict, weizhidict, shenfendict):
+    if not Dlist:
+        return Klist, Ydict, weizhidict, shenfendict
+    elif Dlist[0] == Dlist[1]:
+        Dlist.pop(0)
+    print(Ydict)
+    for i in Dlist:
+        Klist.append(i)
+        print(i)
+        del Ydict[i]
+        for a in weizhidict:
+            if weizhidict[a] == i:
+                # print(weizhidict[a])
+                del shenfendict[a]
+    return Klist, Ydict, weizhidict, shenfendict
+
+
 
 def Nchuli(fd, Dlist, weizhidict):
     try:
@@ -99,13 +172,15 @@ def Nchuli(fd, Dlist, weizhidict):
         data = data.decode()
     except:
         return Dlist
+    print(data[3:])
     if data[0:2] == 'nT':
-        Dlist.append(data[2:])
+        Dlist.append(data[3:])
     elif data[0:2] == 'NT':
-        Dlist.clear(data[2:])
-    
+        Dlist.remove(data[3:])
+    return Dlist
 
-def Lchuli2(fd, Ldict, L):#狼人投票处理
+
+def Lchuli2(fd, Ldict, L):  # 狼人投票处理
     max_count = 0
     if len(L) == 1:
         return L[0]
@@ -114,10 +189,11 @@ def Lchuli2(fd, Ldict, L):#狼人投票处理
             if L.count(i) > max_count:
                 max_str = i
                 max_count = L.count(i)
-    print(max_str,'狼人杀人对象')
+    print(max_str, '狼人杀人对象')
     return max_str
 
-def Lchuli(fd, Ldict,weizhidict,ab):# 狼人投票第一步处理,收集所有狼人的投票情况
+
+def Lchuli(fd, Ldict, weizhidict, ab):  # 狼人投票第一步处理,收集所有狼人的投票情况
     n = list(Ldict.values()).count('L')
     while True:
         try:
@@ -131,14 +207,14 @@ def Lchuli(fd, Ldict,weizhidict,ab):# 狼人投票第一步处理,收集所有�
         if data[0:2] == 'LJ':
             data1 = 'LLJ%s号玩家说%s' % (weizhidict[addr], data[2:])
             fasong(fd, data1, weizhidict)
-        elif data[0:2]=='LT':
+        elif data[0:2] == 'LT':
             ab.append(data[2:])
             n -= 1
             if n == 0:
                 break
-            print(n, '狼人个数')
+            # print(n, '狼人个数')
     data1 = 'exit'
-    fasong(fd,data1,weizhidict)
+    fasong(fd, data1, weizhidict)
     return ab
 
 
@@ -154,7 +230,7 @@ def Ychuli(fd, Ydict,):
         data1 = 'YYW%s号玩家的身份是%s' % (data[2:], minzidict[Ydict[data[2:]]])
         fasong(fd, data1, weizhidict)
         del Ydict[data[2:]]
-        
+
 
 def panduan(L):
     print(L.count('L'))
@@ -172,9 +248,9 @@ def fasong(fd, data, userlist):  # 发送函数,发送给指定字典或列表�
 
 def secv_shenfen(fd, weizhidict):  # 一共10个if
     from random import shuffle
-    if len(weizhidict) == 4:
+    if len(weizhidict) == 5:
         # L = ['L', 'C', 'Y', 'N']
-        L = ['Y','L','L','N']
+        L = ['Y', 'L', 'l', 'N','L']
     elif len(weizhidict) == 6:
         L = ['L', 'C', 'Y', 'N']
     elif len(weizhidict) == 7:
@@ -184,11 +260,11 @@ def secv_shenfen(fd, weizhidict):  # 一共10个if
     elif len(weizhidict) == 9:
         L = ['L', 'C', 'Y', 'N']
     shuffle(L)  # 把列表顺序打乱
-    shenfendist = dict(zip(weizhidict, L))
-    for i in shenfendist:
-        data = shenfendist[i]+str(weizhidict[i])
+    shenfendict = dict(zip(weizhidict, L))
+    for i in shenfendict:
+        data = shenfendict[i]+str(weizhidict[i])
         fd.sendto(data.encode(), i)
-    return shenfendist, L
+    return shenfendict, L
 
 
 def begin(fd, weizhidict):  # 游戏开始后执行函数(目的关闭客户端的子进程)

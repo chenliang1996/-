@@ -82,12 +82,14 @@ class Yyanjia:
                 elif data[1] == self.weizhi:
                     if data[2] == 'S':
                         self.say()
-                    elif data[2] == 'D':
-                        self.dead()
-                        break
-                elif data[3] == 'a':
-                    print(data[3:])
-                    return
+            if data[0:2] == 'DDS':
+                self.dead()
+                break
+            if data[0:3] == 'DDW':
+                break
+            if data[3] == 'a':
+                print(data[3:])
+                return
         while True:
             data = self.fd.recv(2048)
             if data.decode()[0] == 'A':

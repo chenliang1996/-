@@ -22,7 +22,6 @@ class Nvwu:
                 print('输入有误,重新输入')
                 continue
             elif data[0] == 'D':
-                data = data[1:]
                 self.data = 'nT'+data
             elif data[0] == 'Q':
                 self.data = 'NT' + data
@@ -91,12 +90,14 @@ class Nvwu:
                 elif data[1] == self.weizhi:
                     if data[2] == 'S':
                         self.say()
-                    elif data[2] == 'D':
-                        self.dead()
-                        break
                 elif data[1] == 'N':
                     self.b = re.findall(r'[1-9]+',data)
                     self.vote()
+            if data[0:3] == 'DDS':
+                    self.dead()
+                    break
+            if data[0:3] == 'DDW':
+                    break
             elif data[1] == 'a':
                 print(data[3:])
                 return

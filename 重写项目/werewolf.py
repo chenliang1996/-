@@ -79,14 +79,16 @@ class Werewolf:
                 elif data[1] == self.weizhi:
                     if data[2] == 'S':
                         self.say()
-                    elif data[2] == 'D':
-                        self.dead()
-                        break
                 elif data[1] == 'A':
                     if data[2] == 'T':
                         self.toupiao()
-            elif data[0:2] == 'LJ':
+            if data[0:2] == 'LJ':
                 print(data[2:])
+            if data[0:3] == 'DDS':
+                self.dead()
+                break
+            if data[0:3] == 'DDW':
+                break
             elif data[1] == 'a':
                 print(data[2:])
                 return

@@ -13,6 +13,7 @@ import human
 import werewolf
 import yuyanjia
 import nvwu
+import lieren
 
 
 def main():
@@ -83,9 +84,9 @@ def recv_msg2(fd, addr):
         n = data.decode()[1]
         human.Cun(fd, addr, n)
     if data.decode()[0] == 'l':
-        # n = int(data.decode()[1])
-        # lieren.Cun(fd,addr,n)
-        pass
+        n = data.decode()[1]
+        lieren.Cun(fd,addr,n)
+        # pass
     if data.decode()[0] == 'Y':
         n = data.decode()[1]
         yuyanjia.Cun(fd, addr, n)
