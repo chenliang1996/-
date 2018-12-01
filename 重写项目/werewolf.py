@@ -30,13 +30,14 @@ class Werewolf:
 
     def say(self):
         while True:
-            data = input('请发言:')
-            if data =='OK':
-                data = 'A%s'%self.weizhi+'OK'
-                return
+            data = input('请输入要说的言论(输入OK结束输入):')
+            if data == 'OK':
+                data = 'A%s' % self.weizhi + 'OK'
+                break
             else:
-                data ='AA'+data
+                data = 'A%s'%self.weizhi+data
             self.fasong(data, self.addr)
+        self.fasong(data,self.addr)
         
     def vote(self):  #vote  投票
         p = Process(target=recv_from, args=(self.fd,))

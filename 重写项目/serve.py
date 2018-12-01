@@ -37,9 +37,8 @@ def main():  # 循环接收消息 并针对处理
                 weizhidict = b[0]
                 mingzidict = b[1]
                 n = b[2]
-            print('当前人数是', n, '个')
-        print(weizhidict, mingzidict, n)
-        if data[0] == 'J':  # 所有的交流都用这个判断处理,所有消息都发送给所有人,所有人都会接受,不同的前缀处理显示问题
+        if data[0] == 'J':  # 所有的交流都用这个判断处理,
+            #所有消息都发送给所有人,所有人都会接受,不同的前缀处理显示问题
             jiaoliu(fd, addr, data, weizhidict)
         if data[2:] == 'Begin':
             if weizhidict[addr] == '1':
@@ -98,30 +97,53 @@ def main():  # 循环接收消息 并针对处理
         data = 'AAW--天亮了,昨晚死的玩家是%s号玩家' % AS
         fasong(fd, data, weizhidict)
         Dlist, Klist, Ydict, shenfendict,p = Deadchuli(fd,Dlist,Klist, Ydict, weizhidict, shenfendict,p)
-        Deadjiaoliu(fd, O, Dlist, day, weizhidict)
-            
+        O = Deadjiaoliu(O, Dlist, day)
+        print(O)
+        for a in O:
+            data = 'A%sS--%s号玩家请发言' % (a,a)
+            fasong(fd, data, weizhidict)
+            while True:
+                data1, addr = fd.recvfrom(1024)
+                data1 = data1.decode()
+                print(data1[2:])
+                if data1[2:] == 'OK':
+                    break
+                Jiaoliu(fd, addr, data1, weizhidict)
 
-def Deadjiaoliu(fd, O, Dlist, day, weizhidict):
-    if day == 1:
-        if not Dlist:
-            return
-        else:
-            if len(Dlist)==2:
-                O.remove(Dlist[0])
-                O.insert(0,Dlist[0])
-                while True:
-                    if O[0] == Dlist[1]:
-                        break
-                    else:
-                        O.append(O.pop(0))
+def Jiaoliu(fd, addr, data, weizhidict):
+    n = weizhidict[addr]
+    print(data)
+    data = 'AAW%s号玩家说%s' % (n, data[2:])
+    print(data)
+    for i in weizhidict:
+        if i != addr:
+            fd.sendto(data.encode(), i)
+    
+        
+
+def Deadjiaoliu(O, Dlist, day):
+    if not Dlist:
+        return O
+    if len(Dlist)==1:
+        while True:
+            if O[0] == Dlist[0]:
+                break
             else:
-                while True:
-                    if O[0] == Dlist[0]:
-                        break
-                    else:
-                        O.append(O.pop(0))
-
-
+                O.append(O.pop(0))
+        if day != 1:
+            O.pop(0)
+    else:
+        O.remove(Dlist[0])
+        while True:
+            if O[0] == Dlist[1]:
+                break
+            else:
+                O.append(O.pop(0))
+        O.insert(0, Dlist[0])
+        if day != 1:
+            O.pop(0)
+            O.pop(0)
+    return O
 
 def Deadchuli(fd,Dlist, Klist, Ydict, weizhidict, shenfendict,p):
     if p==1:
@@ -149,13 +171,14 @@ def Deadchuli(fd,Dlist, Klist, Ydict, weizhidict, shenfendict,p):
 def Achuli(fd, Dlist, Klist, Ydict, weizhidict, shenfendict):
     if not Dlist:
         return Klist, Ydict, weizhidict, shenfendict
-    elif Dlist[0] == Dlist[1]:
+    elif len(Dlist) != 1:
         Dlist.pop(0)
     print(Ydict)
     for i in Dlist:
         Klist.append(i)
         print(i)
-        del Ydict[i]
+        if i in Ydict:
+            del Ydict[i]
         for a in weizhidict:
             if weizhidict[a] == i:
                 # print(weizhidict[a])
@@ -314,6 +337,7 @@ def jiaoliu(fd, addr, data, weizhidict):
         fd.sendto('Q'.encode(), addr)
     else:
         n = weizhidict[addr]
+        print(data)
         data = '%s%s号玩家说%s' % (data[0:2], n, data[2:])
         print(data)
         for i in weizhidict:

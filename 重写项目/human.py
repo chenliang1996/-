@@ -36,11 +36,12 @@ class Human:
         while True:
             data = input('请输入要说的言论(输入OK结束输入):')
             if data == 'OK':
-                data = 'A%s'%self.weizhi+'OK'
-                return
+                data = 'A%s' % self.weizhi + 'OK'
+                break
             else:
                 data = 'A%s'%self.weizhi+data
-            self.fasong(data,self.addr)
+            self.fasong(data, self.addr)
+        self.fasong(data,self.addr)
 
     def dead(self):  #有遗言死
         while True:
